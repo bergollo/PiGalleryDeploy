@@ -1,0 +1,1 @@
+ansible-playbook -i hosts.ini ./infra/files/only-start-app.yml

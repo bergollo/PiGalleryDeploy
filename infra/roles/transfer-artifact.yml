@@ -1,0 +1,87 @@
+---
+- name: Ensure the system is up to date
+  become: yes
+  apt:
+    update_cache: yes
+    upgrade: dist
+    state: present
+#   register: result
+# - name: Show the Update Output
+#   debug:
+#     var: result.stdout_lines
+
+- name: Install unzip package
+  become: yes
+  apt:
+    name: unzip
+    state: present
+
+- name: Remove the old zip file
+  file:
+    path: nextjs-dnd-fileupload
+    state: absent
+
+- name: Remove the old artifact
+  file:
+    path: nextjs-dnd-fileupload.zip
+    state: absent
+
+- name: Copy ZIP file to the server
+  become: yes
+  copy:
+    src: ../../nextjs-dnd-fileupload.zip  # Path to the local ZIP file
+    dest: nextjs-dnd-fileupload.zip  # Path on the remote server
+    mode: '777'  # Set the file permissions
+  register: result
+- name: Show the output
+  debug:
+    var: result.stdout_lines
+
+- name: Change ownership of the file
+  become: yes
+  file:
+    path: nextjs-dnd-fileupload.zip
+    owner: "{{ ansible_user }}"  # Set the owner
+    group: "{{ ansible_user }}"  # Set the group
+
+- name: Unzip the file
+  unarchive:
+    src: nextjs-dnd-fileupload.zip  # Path on the remote server
+    dest: ./          # Destination directory to extract the files
+    mode: '777'  # Set the file permissions
+    remote_src: yes
+
+# - name: Change ownership and permissions for the main directory
+#   file:
+#     path: "{{ item.path }}"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#     mode: '777'  # Set the desired mode for the main directory
+
+# - name: Find all subdirectories
+#   find:
+#     paths: "{{ item.path }}"
+#     file_type: directory
+#   register: found_directories
+
+# - name: Change ownership and permissions for each subdirectory
+#   file:
+#     path: "{{ item.path }}"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#     mode: '0755'  # Set the desired mode for subdirectories
+#   with_items: "{{ found_directories.files }}"
+
+# - name: Find all files
+#   find:
+#     paths: "{{ item.path }}"
+#     file_type: file
+#   register: found_files
+
+# - name: Change ownership and permissions for each file
+#   file:
+#     path: "{{ item.path }}"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#     mode: '0644'  # Set the desired mode for files
+#   with_items: "{{ found_files.files }}"

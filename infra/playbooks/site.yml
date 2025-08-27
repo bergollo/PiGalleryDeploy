@@ -1,0 +1,50 @@
+---
+- name: Compress Frame App
+  hosts: localhost
+  tasks:
+    - include_tasks: roles/compress-working-dir.yml
+
+- name: Setup Frame App
+  hosts: webservers
+  tasks:
+    - include_tasks: roles/transfer-artifact.yml
+
+- name: Allow port 8080 through UFW
+  hosts: webservers
+  become: yes
+  tasks:
+    - include_tasks: roles/uncomplicated-firewall.yml
+
+- name: Setup OpenSSL
+  hosts: webservers
+  become: yes
+  tasks:
+    - include_tasks: roles/setup-openssl.yml
+
+- name: Setup Nginx
+  hosts: webservers
+  become: yes
+  tasks:
+    - include_tasks: roles/setup-nginx.yml
+
+  handlers:
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
+
+- name: Install Node.js
+  hosts: webservers
+  become: yes
+  tasks:
+    - include_tasks: roles/setup-nodejs.yml
+
+- name: Run Server
+  hosts: webservers
+  tasks:
+    - include_tasks: roles/start-server.yml
+
+- name: Run App
+  hosts: webservers
+  tasks:
+    - include_tasks: roles/start-app.yml

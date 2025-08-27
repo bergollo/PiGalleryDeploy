@@ -1,0 +1,25 @@
+---
+- name: Setup Frame App
+  hosts: webservers
+  tasks:
+    - name: Clean/Delete pm2 jobs
+      command: "npm run pm2 -- \"delete\" \"all\""
+      args:
+        chdir: "{{ app_dir }}"
+      ignore_errors: yes
+
+    - name: Start the Express server
+      command: "npm run server-prod"
+      args:
+        chdir: "{{ app_dir }}"
+      async: 10
+      poll: 0
+      register: express_app
+
+    - name: Start the Node.js application
+      command: "npm run start-prod"
+      args:
+        chdir: "{{ app_dir }}"
+      async: 60
+      poll: 0
+      register: node_app

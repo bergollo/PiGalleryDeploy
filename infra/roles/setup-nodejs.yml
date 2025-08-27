@@ -1,0 +1,50 @@
+---
+- name: Install prerequisites
+  apt:
+    name: curl
+    state: present
+
+- name: Add NodeSource GPG key
+  apt_key:
+    url: "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"
+    state: present
+
+- name: Add NodeSource APT repository
+  apt_repository:
+    repo: 'deb https://deb.nodesource.com/node_18.x {{ ansible_lsb.codename }} main'
+    state: present
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Fix broken packages
+  apt:
+    upgrade: dist
+    state: present
+
+- name: Install Node.js
+  apt:
+    name: nodejs
+    state: present
+
+- name: Install npm
+  apt:
+    name: npm
+    state: present
+
+- name: Debug Node.js version
+  command: node -v
+  register: node_version
+
+- name: Show Node.js version
+  debug:
+    var: node_version.stdout
+
+- name: Debug npm version
+  command: npm -v
+  register: npm_version
+
+- name: Show npm version
+  debug:
+    var: npm_version.stdout

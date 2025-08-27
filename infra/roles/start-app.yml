@@ -1,0 +1,35 @@
+---
+- name: Install dependencies
+  command: "npm install"
+  args:
+    chdir: "{{ app_dir }}"
+
+- name: Build the application
+  command: "npm run build"
+  args:
+    chdir: "{{ app_dir }}"
+
+- name: Set permissions for the .next directory
+  file:
+    path: "{{ app_dir }}/.next"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'       # Adjust permissions as needed
+    state: directory
+
+- name: Start the Node.js application
+  command: "npm run start-prod"
+  args:
+    chdir: "{{ app_dir }}"
+  async: 60
+  poll: 0
+  register: node_app
+
+- name: Wait for the application to start
+  async_status:
+    jid: "{{ node_app.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  retries: 10
+  delay: 5
+

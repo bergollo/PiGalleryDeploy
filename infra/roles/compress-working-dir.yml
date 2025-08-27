@@ -1,0 +1,13 @@
+---
+- name: Create a Project zip archive
+  community.general.archive:
+    path: ../../nextjs-dnd-fileupload
+    dest: ../../nextjs-dnd-fileupload.zip
+    format: zip
+    exclude_path:
+      - "../venv"
+      - "../node_modules"
+      - "../packages/server/node_modules"
+      - "../build"
+      - "../.next"
+      - "../.git"

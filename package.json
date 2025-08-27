@@ -1,0 +1,24 @@
+{
+  "name": "nextjs-dnd-fileupload",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "next dev --workspace frontend",
+    "build": "next build --workspace frontend",
+    "pm2": "pm2",
+    "prod:frontend": "pm2 start npm --name \"frontend\" -- start --workspace frontend",
+    "prod:server": "pm2 start npm --name \"backend\" -- start --workspace server",
+    "start": "npm run prod:frontend && npm run prod:server",
+    "clean": "rm -rf build dist .cache .next packages/frontend/.next packages/server/dist",
+    "package:frontend": "node ./scripts/package-frontend.js",
+    "package:server": "node ./scripts/package-server.js",
+    "package": "npm run build && npm run package:frontend && npm run package:server && node ./scripts/create-deploy-archive.js",
+    "ansible:venv:install": "python3 -m venv .venv && .venv/bin/python -m pip install --upgrade pip setuptools && .venv/bin/pip install -r infra/requirements.txt",
+    "ansible:run": ".venv/bin/ansible-playbook -i \"ANSIBLE_INVENTORY\" infra/playbooks/site.yml --extra-vars \"deploy_artifact=DEPLOY_ARTIFACT\"",
+    "deploy:ansible": "npm run package && export ANSIBLE_INVENTORY=infra/inventories/local && export DEPLOY_ARTIFACT=./build/deploy.tar.gz && npm run ansible:run",
+    "deploy:local": "ANSIBLE_INVENTORY=infra/inventories/local DEPLOY_ARTIFACT=./build/deploy.tar.gz npm run ansible:run"
+  }
+}

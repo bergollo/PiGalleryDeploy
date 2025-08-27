@@ -1,0 +1,7 @@
+,venv
+build
+dist 
+.cache
+.next 
+packages/frontend/.next
+packages/server/dist

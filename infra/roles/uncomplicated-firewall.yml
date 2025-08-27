@@ -1,0 +1,20 @@
+---
+- name: Install UFW
+  apt:
+    name: ufw
+    state: present
+- name: Allow port 8080
+  ufw:
+    rule: allow
+    port: 8080
+    proto: tcp
+- name: Allow port 80
+  ufw:
+    rule: allow
+    port: 80
+    proto: tcp
+- name: Allow port 443
+  ufw:
+    rule: allow
+    port: 443
+    proto: tcp

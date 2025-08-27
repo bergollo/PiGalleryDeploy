@@ -1,0 +1,69 @@
+# Define a custom log format (optional)
+    log_format api_log_format '$remote_addr - $remote_user [$time_local] "$request" '
+                               '$status $body_bytes_sent "$http_referer" '
+                               '"$http_user_agent" "$http_x_forwarded_for"';
+client_max_body_size 50M;
+
+server {
+    listen 80;
+    server_name 192.168.1.104 gallery.com www.gallery.com;
+
+    location / {
+        proxy_pass http://localhost:8080/;  # Forward to the backend service
+        proxy_set_header Host $host;          # Preserve the original Host header
+        proxy_set_header X-Real-IP $remote_addr;  # Preserve the real IP address
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # Preserve forwarded IPs
+        proxy_set_header X-Forwarded-Proto $scheme;  # Preserve the original protocol (HTTP/HTTPS)
+    }
+
+    # return 301 http://$host:8080$request_uri;  # Redirect HTTP to HTTPS
+}
+
+server {
+    listen 8080;  # Change this to the port you want to serve HTTP traffic
+    server_name {{ ansible_host }};
+
+    location /api/ {
+        proxy_pass http://localhost:3002/;  # Forward to the backend service
+        proxy_set_header Host $host;          # Preserve the original Host header
+        proxy_set_header X-Real-IP $remote_addr;  # Preserve the real IP address
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # Preserve forwarded IPs
+        proxy_set_header X-Forwarded-Proto $scheme;  # Preserve the original protocol (HTTP/HTTPS)
+    }
+
+    location / {
+        proxy_pass http://localhost:3000;  # Change this to the port your Node.js app is running on
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        access_log /var/log/nginx/api_access.log api_log_format;  # Log for /api/
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name 192.168.1.104 gallery.com www.gallery.com;
+
+    ssl_certificate /etc/ssl/bergo/gallery.local.crt;
+    ssl_certificate_key /etc/ssl/bergo/gallery.local.key;
+
+    location /api/ {
+        proxy_pass http://localhost:3002/;  # Forward to the backend service
+        proxy_set_header Host $host;          # Preserve the original Host header
+        proxy_set_header X-Real-IP $remote_addr;  # Preserve the real IP address
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;  # Preserve forwarded IPs
+        proxy_set_header X-Forwarded-Proto $scheme;  # Preserve the original protocol (HTTP/HTTPS)
+        access_log /var/log/nginx/api_access.log api_log_format;  # Log for /api/
+    }
+
+    location / {
+        proxy_pass http://localhost:3000;  # Change this to the port your Node.js app is running on
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}

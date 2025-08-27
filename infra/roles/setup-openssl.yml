@@ -1,0 +1,34 @@
+---
+- name: Install OpenSSL on Debian-based systems
+  apt:
+    name: openssl
+    state: present
+
+- name: Create a directory for SSL certificates
+  file:
+    path: /etc/ssl/bergo
+    state: directory
+    mode: '0755'
+
+- name: Generate a private key
+  command: openssl genrsa -out /etc/ssl/bergo/gallery.local.key 2048
+  args:
+    creates: /etc/ssl/bergo/gallery.local.key
+
+# - name: Generate a self-signed certificate
+#   command: >
+#     openssl req -x509 -new -nodes -key /etc/ssl/bergo/gallery.local.key
+#     -sha256 -days 365 -out /etc/ssl/bergo/gallery.local.crt
+#     -subj "/CN={{ inventory_hostname }}"
+#   args:
+#     creates: /etc/ssl/bergo/gallery.local.crt
+
+- name: Generate a certificate signing request (CSR)
+  command: openssl req -new -key /etc/ssl/bergo/gallery.local.key -out /etc/ssl/bergo/gallery.local.csr -subj "/C=US/ST=State/L=City/O=Organization/CN=gallery.com"
+  args:
+    creates: /etc/ssl/bergo/gallery.local.csr
+
+- name: Generate a self-signed certificate
+  command: openssl x509 -req -days 365 -in /etc/ssl/bergo/gallery.local.csr -signkey /etc/ssl/bergo/gallery.local.key -out /etc/ssl/bergo/gallery.local.crt
+  args:
+    creates: /etc/ssl/bergo/gallery.local.crt

@@ -1,0 +1,36 @@
+---
+- name: Install dependencies
+  command: "npm install"
+  args:
+    chdir: "{{ app_dir }}"
+
+# - name: Check for PM2 processes
+#   command: "npm run pm2 -- \"list\""
+#   args:
+#     chdir: "{{ app_dir }}"
+#   register: pm2_processes
+#   ignore_errors: yes
+# - name: Debug PM2 processes output
+#   debug:
+#     var: pm2_processes.stdout
+- name: Clean/Delete pm2 jobs
+  command: "npm run pm2 -- \"delete\" \"all\""
+  args:
+    chdir: "{{ app_dir }}"
+  ignore_errors: yes
+
+- name: Start the Express server
+  command: "npm run server-prod"
+  args:
+    chdir: "{{ app_dir }}"
+  async: 10
+  poll: 0
+  register: express_app
+
+- name: Wait for the application to start
+  async_status:
+    jid: "{{ express_app.ansible_job_id }}"
+  register: job_result
+  until: job_result.finished
+  retries: 5
+  delay: 2
