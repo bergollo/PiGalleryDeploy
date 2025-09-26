@@ -3,15 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/frontend",
+    "packages/server"
   ],
   "scripts": {
-    "dev": "next dev --workspace frontend",
-    "build": "next build --workspace frontend",
+    "dev": "npm run dev --workspace=frontend",
+    "build": "npm run build --workspace=frontend",
     "pm2": "pm2",
-    "prod:frontend": "pm2 start npm --name \"frontend\" -- start --workspace frontend",
-    "prod:server": "pm2 start npm --name \"backend\" -- start --workspace server",
+    "prod:frontend": "pm2 start npm --name \"frontend\" -- start --workspace=frontend",
+    "prod:server": "pm2 start npm --name \"backend\" -- start --workspace=server",
     "start": "npm run prod:frontend && npm run prod:server",
+    "stop": "pm2 stop frontend backend",
+    "delete": "pm2 delete frontend backend",
     "clean": "rm -rf build dist .cache .next packages/frontend/.next packages/server/dist",
     "package:frontend": "node ./scripts/package-frontend.js",
     "package:server": "node ./scripts/package-server.js",

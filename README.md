@@ -156,3 +156,73 @@ Notes:
 - Server dev: `cd packages/server && npm run dev`  
 - Build & package all: `./scripts/build-all.sh`  
 - Run Ansible deploy: `./infra/scripts/run-ansible-deploy.sh --inventory infra/inventories/local`
+
+---
+
+## Fixes — Vitest / @vitejs/plugin-react / Next.js TypeScript
+
+This section documents applied fixes and step-by-step remediation for two issues encountered when adding @vitejs/plugin-react and running Next.js builds in a TypeScript project.
+
+### 1 — ERESOLVE when installing @vitejs/plugin-react
+
+Problem:
+- npm install failed with error code `ERESOLVE` while adding `@vitejs/plugin-react`.
+
+Cause:
+- Missing Node type definitions caused dependency/type resolution issues during install.
+
+Fix (steps):
+1. Install Node type definitions as a dev dependency:
+   ```bash
+   npm install --save-dev @types/node
+   ```
+2. Re-run the install for the plugin if needed:
+   ```bash
+   npm install --save-dev @vitejs/plugin-react
+   ```
+3. Verify install succeeded:
+   - Check package.json contains `@types/node` and `@vitejs/plugin-react`.
+   - Run a quick TypeScript compile or linter to confirm no missing types.
+
+Optional:
+- If you use pnpm or yarn, use the equivalent add command.
+
+---
+
+### 2 — Next.js type-checking files inside @vitejs/plugin-react
+
+Problem:
+- `npm run build` failed because Next.js’ TypeScript type-check included files in `node_modules/@vitejs/plugin-react`.
+
+Cause:
+- tsconfig include/exclude settings were broad or missing, allowing Next’s type-check step to pick up files under `node_modules`.
+
+Fix (steps):
+1. Create or update tsconfig.app.json at the repo root (used for the Next build) with a focused exclude:
+   ```json
+   {
+     "extends": "./tsconfig.json",
+     "exclude": ["node_modules", ".next", "dist", "vitest.config.ts"]
+   }
+   ```
+2. Ensure your base tsconfig.json has a narrow include (recommended):
+   ```json
+   {
+     "compilerOptions": {
+       "jsx": "react-jsx",
+       "skipLibCheck": true
+     },
+     "include": ["src/**/*", "next-env.d.ts"]
+   }
+   ```
+3. Confirm Next uses the root tsconfig (Next auto-detects root tsconfig). Avoid importing dev-only configs or files from pages/components.
+4. Clean caches and rebuild:
+   ```bash
+   rm -rf .next node_modules/.vite
+   npm run build
+   ```
+
+Notes and recommendations:
+- `skipLibCheck: true` in compilerOptions reduces noise from declaration files in node_modules but does not replace proper excludes.
+- Avoid overly broad "include": ["**/*"] in tsconfig roots; prefer explicit folders like `src`.
+- If you only need `@vitejs/plugin-react` for testing (Vitest), ensure that plugin is referenced only in vitest.config.ts and not imported by any code that Next builds.

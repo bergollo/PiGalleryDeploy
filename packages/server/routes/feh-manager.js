@@ -4,6 +4,7 @@ const { exec, execSync } = require('child_process');
 const PORT = 3000;
 
 let motionProcess = null;
+let fehProcess = null;
 
 // Function to start feh
 const startMotion = () => {
@@ -27,8 +28,6 @@ const startMotion = () => {
 };
 startMotion()
 
-let fehProcess = null;
-
 // Function to start feh
 const startFeh = () => {
     if (fehProcess) {
@@ -50,7 +49,7 @@ const startFeh = () => {
     });
     console.log('feh started.');
 };
-startFeh()
+if (process.env.NODE_ENV != "test") startFeh()
 
 // Function to stop feh
 const stopFeh = () => {

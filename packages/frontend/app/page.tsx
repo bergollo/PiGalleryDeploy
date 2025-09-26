@@ -2,16 +2,16 @@
 
 import React, { useReducer } from "react";
 import Head from "next/head";
-import { PhotosProvider } from '../../context/PhotosContext';
+import { PhotosProvider } from '../context/PhotosContext';
 
-import styles from "../../styles/Home.module.css";
+import styles from "../styles/Home.module.css";
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Container from '@mui/material/Container';
-import theme from '../../config/theme';
-import createEmotionCache from '../../config/createEmotionCache';
-import PhotoGallery from '../../components/PhotoGallery';
-import UploadDialog from '../../components/UploadDialog';
+import theme from '../config/theme';
+import createEmotionCache from '../config/createEmotionCache';
+import PhotoGallery from '../components/PhotoGallery';
+import UploadDialog from '../components/UploadDialog';
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();

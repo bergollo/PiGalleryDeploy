@@ -1,3 +1,4 @@
+// DropZone.tsx
 "use client";
 // https://innocentanyaele.medium.com/create-a-drag-and-drop-file-component-in-reactjs-nextjs-tailwind-6ae70ba06e4b
 import { useState, useImperativeHandle, forwardRef } from "react";
@@ -137,7 +138,7 @@ export default forwardRef<DropZoneRef, DropZoneProp>(function DropZone({ showBut
 
   return (
     <>
-      <Container fixed className={styles.mainContainer}
+      <Container id="drop-zone" fixed className={styles.mainContainer}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragEnter={handleDragEnter}
