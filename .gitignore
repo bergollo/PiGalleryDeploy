@@ -9,3 +9,4 @@ packages/server/dist
 node_modules
 packages/frontend/node_modules
 packages/server/node_modules
+packages/server/output.log

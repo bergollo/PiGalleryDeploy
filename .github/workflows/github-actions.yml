@@ -7,10 +7,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x] # adjust version if needed
-
     steps:
       # Checkout code
       - name: Checkout repository
@@ -25,41 +21,41 @@ jobs:
       
             # Install dependencies for backend
       - name: Install backend dependencies
-        working-directory: ./server
+        working-directory: ./
         run: npm install
 
       # Run backend tests
-      - name: Run backend tests
-        working-directory: ./server
-        run: npm start
+      - name: Run backend PM for testing
+        working-directory: ./
+        run: npm run prod:server
 
       # Run backend tests
       - name: Run backend tests
-        working-directory: ./server
+        working-directory: ./packages/server
         run: npm test
 
       
       # Install dependencies for frontend
       - name: Install frontend dependencies
-        working-directory: ./frontend
+        working-directory: ./packages/frontend
         run: npm install
 
       # Run frontend tests
       - name: Run frontend tests
-        working-directory: ./frontend
-        run: npm test -- --watchAll=false
+        working-directory: ./packages/frontend
+        run: npm test
 
       # Build frontend
       - name: Build frontend
-        working-directory: ./frontend
+        working-directory: ./packages/frontend
         run: npm run build
 
       # (Optional) Upload build artifacts (React build)
       - name: Upload production-ready frontend
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: react-build
-          path: ./frontend/build
+          path: ./packages/frontend/build
 
   deploy:
     needs: build-and-test

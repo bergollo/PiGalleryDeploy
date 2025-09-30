@@ -9,12 +9,6 @@
     "test:unit": "jest __tests__/unit",
     "test:integration": "jest __tests__/Integration"
   },
-  "jest": {
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "<rootDir>/__tests__/setup.js"
-    ]
-  },
   "dependencies": {
     "body-parser": "^1.20.2",
     "cookie-parser": "~1.4.4",

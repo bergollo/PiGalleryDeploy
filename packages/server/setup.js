@@ -14,7 +14,7 @@ global.console = {
 };
 
 // Extend Jest timeout (useful for integration tests hitting Express)
-jest.setTimeout(10000);
+// jest.setTimeout(10000);
 
 // Jest global hooks
 beforeAll(async () => {
